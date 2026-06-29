@@ -7,6 +7,8 @@ import { redis } from './infra/cache/redis'
 import { authRoutes } from './infra/http/routes/auth'
 import { organizationRoutes } from './infra/http/routes/organizations'
 import { projectRoutes } from './infra/http/routes/projects'
+import { columnRoutes } from './infra/http/routes/columns'
+import { taskRoutes } from './infra/http/routes/tasks'
 import { bootstrapCommandBus } from './application/command-bus/bootstrap'
 
 const app = Fastify({
@@ -29,6 +31,8 @@ async function registerRoutes() {
   await app.register(authRoutes, { prefix: '/api/v1' })
   await app.register(organizationRoutes, { prefix: '/api/v1' })
   await app.register(projectRoutes, { prefix: '/api/v1' })
+  await app.register(columnRoutes, { prefix: '/api/v1' })
+  await app.register(taskRoutes, { prefix: '/api/v1' })
 }
 
 app.setErrorHandler((error, _request, reply) => {
