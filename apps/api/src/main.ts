@@ -1,9 +1,13 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
+
+
 import { env } from './config/env'
 import { prisma } from './infra/database/prisma'
 import { redis } from './infra/cache/redis'
+import { bootstrapCommandBus } from './application/command-bus/bootstrap'
+
 import { authRoutes } from './infra/http/routes/auth'
 import { organizationRoutes } from './infra/http/routes/organizations'
 import { projectRoutes } from './infra/http/routes/projects'
@@ -11,7 +15,8 @@ import { columnRoutes } from './infra/http/routes/columns'
 import { taskRoutes } from './infra/http/routes/tasks'
 import { timeTrackingRoutes } from './infra/http/routes/time-tracking'
 import { publicRoutes } from './infra/http/routes/public'
-import { bootstrapCommandBus } from './application/command-bus/bootstrap'
+import { inviteRoutes } from './infra/http/routes/invites'
+
 
 const app = Fastify({
   logger: {
@@ -37,6 +42,7 @@ async function registerRoutes() {
   await app.register(taskRoutes, { prefix: '/api/v1' })
   await app.register(timeTrackingRoutes, { prefix: '/api/v1' })
   await app.register(publicRoutes, { prefix: '/api/v1' })
+  await app.register(inviteRoutes, { prefix: '/api/v1' })
 }
 
 app.setErrorHandler((error, _request, reply) => {

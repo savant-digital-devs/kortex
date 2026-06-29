@@ -11,6 +11,8 @@ export async function organizationRoutes(app: FastifyInstance) {
       const bodySchema = z.object({
         name: z.string().min(2),
         slug: z.string().min(2).regex(/^[a-z0-9-]+$/, 'Slug deve conter apenas letras minúsculas, números e hífens'),
+        plan: z.enum(['STANDARD', 'AUTONOMOUS', 'ENTERPRISE']).default('STANDARD'),
+        seats: z.number().int().min(1).default(1),
       })
 
       const body = bodySchema.safeParse(request.body)
@@ -34,11 +36,13 @@ export async function organizationRoutes(app: FastifyInstance) {
         data: {
           name: body.data.name,
           slug: body.data.slug,
+          plan: body.data.plan,
+          seats: body.data.seats,
           members: {
             create: {
               userId: request.user.sub,
               role: 'OWNER',
-              permissions: 7, 
+              permissions: 7,
             },
           },
         },
