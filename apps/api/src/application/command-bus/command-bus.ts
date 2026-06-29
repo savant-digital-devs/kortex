@@ -1,4 +1,5 @@
 import { Permission } from '../../infra/http/middlewares/rbac'
+import { prisma } from '../../infra/database/prisma'
 
 export interface Command {
   type: string
@@ -32,20 +33,31 @@ export class CommandBus {
       throw new Error(`No handler registered for command: ${command.type}`)
     }
 
-    // verifica permissão RBAC se necessário
+    // verifica permissão RBAC
     if (handler.requiredPermission !== null) {
       const isOwnerOrAdmin = context.role === 'OWNER' || context.role === 'ADMIN'
 
       if (!isOwnerOrAdmin) {
         const hasPermission = (context.permissions & handler.requiredPermission) !== 0
-
-        if (!hasPermission) {
-          throw new Error('FORBIDDEN')
-        }
+        if (!hasPermission) throw new Error('FORBIDDEN')
       }
     }
 
-    return handler.handle(command, context) as Promise<R>
+    const result = await handler.handle(command, context) as R
+
+    // audit log automático após cada comando bem sucedido
+    await prisma.auditLog.create({
+      data: {
+        action: command.type,
+        newState: result as object,
+        actorId: context.userId,
+        resourceId: (command.payload as { taskId?: string }).taskId ?? '',
+        projectId: undefined,
+        taskId: (command.payload as { taskId?: string }).taskId,
+      },
+    })
+
+    return result
   }
 }
 
