@@ -1,7 +1,8 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
-import { env } from './config/env.js'
+import { env } from './config/env'
+import { authRoutes } from './infra/http/routes/auth'
 
 const app = Fastify({
   logger: {
@@ -16,6 +17,7 @@ const app = Fastify({
 
 await app.register(cors, { origin: true })
 await app.register(helmet)
+await app.register(authRoutes)
 
 app.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() }
