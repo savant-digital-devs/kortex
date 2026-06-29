@@ -4,6 +4,7 @@ import helmet from '@fastify/helmet'
 import { env } from './config/env'
 import { authRoutes } from './infra/http/routes/auth'
 import { organizationRoutes } from './infra/http/routes/organizations'
+import { projectRoutes } from './infra/http/routes/projects'
 
 const app = Fastify({
   logger: {
@@ -20,6 +21,7 @@ await app.register(cors, { origin: true })
 await app.register(helmet)
 await app.register(authRoutes)
 await app.register(organizationRoutes)
+await app.register(projectRoutes)
 
 app.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() }
